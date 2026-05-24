@@ -1,9 +1,8 @@
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from playwright.async_api import async_playwright
-from playwright_stealth import stealth_async
+from playwright_stealth import Stealth
 from bs4 import BeautifulSoup
-import json
 
 app = FastAPI()
 
@@ -27,11 +26,11 @@ async def scrape(
     target: str = Query("website", description="website | meta | instagram"),
 ):
     """
-    Scrapes the given URL using headless Chrome.
-    target param tells us what type of page to expect,
-    so we can extract the right content.
+    Scrapes the given URL using headless Chrome with stealth.
     """
-    async with async_playwright() as p:
+    stealth = Stealth()
+
+    async with stealth.use_async(async_playwright()) as p:
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(
             user_agent=(
@@ -42,9 +41,6 @@ async def scrape(
             viewport={"width": 1920, "height": 1080},
         )
         page = await context.new_page()
-
-        # Apply stealth to hide bot fingerprints
-        await stealth_async(page)
 
         try:
             await page.goto(url, wait_until="networkidle", timeout=60000)
