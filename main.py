@@ -145,15 +145,23 @@ async def scrape_audit(payload: dict):
     stealth = Stealth()
     results = {
         "website": None,
+        "product_page": None,
         "meta": None,
         "instagram": None,
         "competitors": [],
     }
 
-    # 1. Scrape brand website (required)
+   # 1. Scrape brand homepage (required)
     website_url = payload.get("website_url", "")
     if website_url:
         results["website"] = await scrape_page(website_url, stealth)
+
+    # 1b. Scrape product page if provided
+    product_url = payload.get("product_url", "")
+    if product_url:
+        results["product_page"] = await scrape_page(product_url, stealth)
+    else:
+        results["product_page"] = None
 
     # 2. Attempt Meta Ad Library (optional, likely blocked)
     meta_url = payload.get("meta_ad_url", "")
