@@ -36,8 +36,8 @@ async def scrape_page(url: str, stealth: Stealth, timeout: int = 60000):
         page = await context.new_page()
 
         try:
-            await page.goto(url, wait_until="networkidle", timeout=timeout)
-            await page.wait_for_timeout(3000)
+            await page.goto(url, wait_until="domcontentloaded", timeout=timeout)
+            await page.wait_for_timeout(5000)
 
             html = await page.content()
             soup = BeautifulSoup(html, "lxml")
